@@ -1,5 +1,5 @@
 import torch.nn as nn
-from torch import divide
+from torch import divide, tanh
 
 
 class conv(nn.Module):
@@ -46,7 +46,6 @@ class DespeckleFilter(nn.Module):
         self.conv_dr_3 = conv_dr(64, 64, 3, 3)
         self.conv_dr_4 = conv_dr(64, 64, 4, 4)
         self.lambda_layer = Lambda()
-        self.tanh = nn.Tanh()
         
     def forward(self, inputs):
         input_layer = inputs
@@ -90,7 +89,7 @@ class DespeckleFilter(nn.Module):
         
         x = self.lambda_layer(x)
         x = divide(input_layer, x)
-        x = self.tanh(x)
+        x = tanh(x)
         
         return x
     
