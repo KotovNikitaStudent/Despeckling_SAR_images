@@ -4,7 +4,7 @@ The algorithm based on using convolutional neural network. Using PyTorch framewo
 
 # Description of CNN
 Despeckle filter consist from convolution layers (CNN).
-Summary:
+Example, Summary for image (256, 256, 3):
 ```
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
@@ -48,15 +48,14 @@ Summary:
              conv-37          [-1, 3, 256, 256]               0
              ReLU-38          [-1, 3, 256, 256]               0
            Lambda-39          [-1, 3, 256, 256]               0
-             Tanh-40          [-1, 3, 256, 256]               0
 ================================================================
 Total params: 299,971
 Trainable params: 299,971
 Non-trainable params: 0
 ----------------------------------------------------------------
 Input size (MB): 0.75
-Forward/backward pass size (MB): 1127.50
+Forward/backward pass size (MB): 1126.00
 Params size (MB): 1.14
-Estimated Total Size (MB): 1129.39
+Estimated Total Size (MB): 1127.89
 ----------------------------------------------------------------
 ```
