@@ -37,7 +37,7 @@ class DespeckleFilter(nn.Module):
         super(DespeckleFilter, self).__init__()
         
         self.conv_1 = conv(in_c=in_c, out_c=64)
-        self.conv_2 = conv(in_c=64, out_c=3)
+        self.conv_2 = conv(in_c=64, out_c=in_c)
         self.leaky_rely = nn.LeakyReLU(negative_slope=0.2)
         self.b_n = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
