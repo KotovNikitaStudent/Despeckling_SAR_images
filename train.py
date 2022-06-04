@@ -1,6 +1,4 @@
 import os
-from pyexpat import model
-from statistics import mode
 from torch.utils.data import DataLoader
 from loss import TotalVariationLoss
 from model import DespeckleFilter
@@ -33,7 +31,7 @@ def main():
     optimizer = optim.SGD(filter(lambda p: p.requires_grad, model.parameters()), lr=args['lr'], weight_decay=5e-4, momentum=0.9, nesterov=True)
 
 
-def train():
+def train(loader, model, loss, ):
     pass
 
 
