@@ -96,5 +96,5 @@ class DespeckleFilter(nn.Module):
 
 if __name__ == "__main__":
     from torchsummary import summary
-    model = DespeckleFilter(3)
-    summary(model, input_size=(3, 256, 256))
+    model = DespeckleFilter(1)
+    summary(model, input_size=(1, 256, 256))
