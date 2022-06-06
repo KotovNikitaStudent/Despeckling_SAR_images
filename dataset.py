@@ -8,21 +8,33 @@ from skimage import io
 
 def load_image(path_to_image):
     image = io.imread(path_to_image)
+    image = image / (2 ** 8 - 1)
     return image
 
 
 class DespeckleDataset(data.Dataset):
-    def __init__(self, image_path):
-        self.path_images = sorted(glob(os.path.join(image_path, "*"), recursive=True))
-        self.len = len(self.data)
-        self.images = [load_image(i) for i in self.path_images]
+    def __init__(self, images_path):
+        self.clean_images_path = sorted(glob(os.path.join(images_path, "clean", "*.tif"), recursive=True))
+        self.noise_images_path = sorted(glob(os.path.join(images_path, "noise", "*.tif"), recursive=True))
+        self.len = len(self.clean_images_path)
+        self.images_clean = [load_image(i) for i in self.clean_images_path]
+        self.images_noise = [load_image(i) for i in self.noise_images_path]
 
     def __len__(self):
         return self.len
     
     def __getitem__(self, idx):
-        image = self.images[idx]
-        image = np.expand_dims(image, axis=-1)
-        image = torch.transpose(image, (2, 0, 1))
-        image = torch.from_numpy(image)
-        return image
+        image_clean = self.images_clean[idx]
+        image_noise = self.images_noise[idx]
+                
+        if image_clean.ndim == 2 and image_noise.ndim == 2:        
+            image_clean = np.expand_dims(image_clean, axis=-1)
+            image_noise = np.expand_dims(image_noise, axis=-1)
+        
+        image_clean = np.transpose(image_clean, (2, 0, 1))
+        image_noise = np.transpose(image_noise, (2, 0, 1))
+        
+        image_clean = torch.from_numpy(image_clean)
+        image_noise = torch.from_numpy(image_noise)
+        
+        return image_clean, image_noise 

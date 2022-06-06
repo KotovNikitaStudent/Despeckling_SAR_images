@@ -66,3 +66,16 @@ model = DespeckleFilter(1)
 summary(model, input_size=(1, 256, 256))
 ```
 where 1 is number channels of image. Current repository using 1-channel images for training and testing neural network.
+
+# Train and Test
+Start the training of neural network with command:
+```
+python3 train.py
+```
+Testing of neural network with command:
+```
+python3 test.py
+```
+
+# Results
+Future works.

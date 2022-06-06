@@ -16,9 +16,6 @@ class TotalVariationLoss(nn.Module):
         self.mse_loss = nn.MSELoss() 
         
     def forward(self, input, target):
-        # inputs = input.view(-1)
-        # targets = target.view(-1)
-        print(target.shape[2])
         mse = self.mse_loss(input, target).sum()        
         variation_loss = total_variation_loss(target, target.shape[2])
         weight_loss = abs(divide(1, target + 1e-5)).sum()

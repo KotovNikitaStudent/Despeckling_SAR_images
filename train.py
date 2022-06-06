@@ -1,23 +1,21 @@
-import imp
-from statistics import mode
 from torch.utils.data import DataLoader
 from loss import TotalVariationLoss
 from model import DespeckleFilter
 from dataset import DespeckleDataset
 from torch import optim
 import torch
-import os
-from skimage.util import random_noise
+from tqdm import tqdm
 
-DATA_ROOT = "/" # dataset contain 1-channel images
+
+DATA_ROOT = "/Users/nikita/Downloads/despeckle_dataset/s2" # dataset contains 1-channel images
 
 args = {
     "image_path": DATA_ROOT,
     "channels": 1,
     "batch_size": 16,
-    "gpu": 0,
-    "lr": 1e-3,
-    "epochs": 100,   
+    "device": 0,
+    "lr": 1e-4,
+    "epochs": 500,   
 }
 
 
@@ -25,7 +23,7 @@ def main():
     device = torch.cuda.set_device(args["device"])
     device = torch.device(f"cuda:{args['device']}")
     
-    model = DespeckleFilter()
+    model = DespeckleFilter(args['channels'])
     model = model.to(device)
     
     dataset_train = DespeckleDataset(args["image_path"])
@@ -38,13 +36,13 @@ def main():
 
     for epoch in range(args["epochs"]+1):
 
-        train_loss = train(model, dataloader, optimizer, loss_fn, device, epoch)
+        train_loss = train(model, dataloader, optimizer, loss_fn, device)
 
         if train_loss < best_train_loss:
             data_str = f"Train loss improved from {best_train_loss:2.5f} to {train_loss:2.5f}. Saving checkpoint."
             print(data_str)
 
-            best_valid_loss = train_loss
+            best_train_loss = train_loss
             torch.save(model.state_dict(), "despeckle_best.pth")
 
         data_str = f'Epoch: {epoch+1:02}\n'
@@ -55,21 +53,21 @@ def main():
     print('Training finished')
     
 
-def train(model, loader, optimizer, loss_fn, device, curr_ep):
+def train(model, loader, optimizer, loss_fn, device):
     epoch_loss = 0.0
 
     model.train()
     
-    for x, y in loader:
+    for x, y in tqdm(loader, total=len(loader)):
         x = x.to(device, dtype=torch.float32)
         y = y.to(device, dtype=torch.float32)
 
         optimizer.zero_grad()
         y_pred = model(x)
-        loss = loss_fn(y_pred, y)
-        loss.backward()
+        total_loss, _, _ = loss_fn(y_pred, y)
+        total_loss.backward()
         optimizer.step()
-        epoch_loss += loss.item()
+        epoch_loss += total_loss.item()
 
     epoch_loss = epoch_loss/len(loader)
 
