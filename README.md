@@ -59,3 +59,10 @@ Params size (MB): 1.14
 Estimated Total Size (MB): 1127.89
 ----------------------------------------------------------------
 ```
+You can check architecture of neural network using the following lines of code:
+```
+from torchsummary import summary
+model = DespeckleFilter(1)
+summary(model, input_size=(1, 256, 256))
+```
+where 1 is number channels of image. Current repository using 1-channel images for training and testing neural network.

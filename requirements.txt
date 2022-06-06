@@ -2,3 +2,4 @@ scikit-image
 tqdm
 torch
 torchvision
+torchsummary
