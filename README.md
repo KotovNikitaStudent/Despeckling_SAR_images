@@ -67,6 +67,21 @@ summary(model, input_size=(1, 256, 256))
 ```
 where 1 is number channels of image. Current repository using 1-channel images for training and testing neural network.
 
+# Dataset
+Dataset should contain image without noise (clean images) and with noise (noise images). The data set must have the following file structure:
+```
+dataset/
+├── test
+│   ├── clean
+│   └── noise
+├── train
+│   ├── clean
+│   └── noise
+└── val
+    ├── clean
+    └── noise
+```
+
 # Train and Test
 Start the training of neural network with command:
 ```

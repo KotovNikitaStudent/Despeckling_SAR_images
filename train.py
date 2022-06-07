@@ -26,23 +26,27 @@ def main():
     model = DespeckleFilter(args['channels'])
     model = model.to(device)
     
-    dataset_train = DespeckleDataset(args["image_path"])
-    dataloader = DataLoader(dataset_train, batch_size=args["batch_size"], num_workers=4, shuffle=True)
+    dataset_train = DespeckleDataset(args["image_path"], mode='train')
+    dataset_val = DespeckleDataset(args["image_path"], mode='val')
+    
+    dataloader_train = DataLoader(dataset_train, batch_size=args["batch_size"], num_workers=4, shuffle=True)
+    dataloader_val = DataLoader(dataset_val, batch_size=args["batch_size"], num_workers=4, shuffle=True)
 
     loss_fn = TotalVariationLoss()
     optimizer = optim.NAdam(model.parameters(), lr=args['lr'])
         
-    best_train_loss = float("inf")
+    best_valid_loss = float("inf")
 
     for epoch in range(args["epochs"]+1):
 
-        train_loss = train(model, dataloader, optimizer, loss_fn, device)
+        train_loss = train(model, dataloader_train, optimizer, loss_fn, device)
+        valid_loss = evaluate(model, dataloader_val, loss_fn, device)
 
-        if train_loss < best_train_loss:
-            data_str = f"Train loss improved from {best_train_loss:2.5f} to {train_loss:2.5f}. Saving checkpoint."
+        if valid_loss < best_valid_loss:
+            data_str = f"Valid loss improved from {best_valid_loss:2.5f} to {valid_loss:2.5f}. Saving checkpoint."
             print(data_str)
 
-            best_train_loss = train_loss
+            best_valid_loss = valid_loss
             torch.save(model.state_dict(), "despeckle_best.pth")
 
         data_str = f'Epoch: {epoch+1:02}\n'
@@ -70,6 +74,24 @@ def train(model, loader, optimizer, loss_fn, device):
         epoch_loss += total_loss.item()
 
     epoch_loss = epoch_loss/len(loader)
+
+    return epoch_loss
+
+
+def evaluate(model, loader, loss_fn, device):
+    epoch_loss = 0.0
+
+    model.eval()
+    with torch.no_grad():
+        for x, y in loader:
+            x = x.to(device, dtype=torch.float32)
+            y = y.to(device, dtype=torch.float32)
+
+            y_pred = model(x)
+            total_loss, _, _ = loss_fn(y_pred, y)
+            epoch_loss += total_loss.item()
+
+        epoch_loss = epoch_loss/len(loader)
 
     return epoch_loss
 

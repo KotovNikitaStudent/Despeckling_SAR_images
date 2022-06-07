@@ -13,9 +13,9 @@ def load_image(path_to_image):
 
 
 class DespeckleDataset(data.Dataset):
-    def __init__(self, images_path):
-        self.clean_images_path = sorted(glob(os.path.join(images_path, "clean", "*.tif"), recursive=True))
-        self.noise_images_path = sorted(glob(os.path.join(images_path, "noise", "*.tif"), recursive=True))
+    def __init__(self, images_path, mode='train'):
+        self.clean_images_path = sorted(glob(os.path.join(images_path, mode, "clean", "*.tif"), recursive=True))
+        self.noise_images_path = sorted(glob(os.path.join(images_path, mode, "noise", "*.tif"), recursive=True))
         self.len = len(self.clean_images_path)
         self.images_clean = [load_image(i) for i in self.clean_images_path]
         self.images_noise = [load_image(i) for i in self.noise_images_path]
