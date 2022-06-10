@@ -1,4 +1,5 @@
 from torch.utils.data import DataLoader
+from Despeckling_SAR_images.utils import create_dir
 from loss import TotalVariationLoss
 from model import DespeckleFilter
 from dataset import DespeckleDataset
@@ -20,6 +21,7 @@ args = {
 
 
 def main():
+    create_dir("weight")
     device = torch.cuda.set_device(args["device"])
     device = torch.device(f"cuda:{args['device']}")
     
@@ -47,7 +49,7 @@ def main():
             print(data_str)
 
             best_valid_loss = valid_loss
-            torch.save(model.state_dict(), "despeckle_best.pth")
+            torch.save(model.state_dict(), "weight/despeckle_best.pth")
 
         data_str = f'Epoch: {epoch+1:02}\n'
         data_str += f'\tTrain Loss: {train_loss:.5f}\n'
