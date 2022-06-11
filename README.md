@@ -82,7 +82,7 @@ dataset/
     ├── clean
     └── noise
 ```
-There is [link](https://disk.yandex.ru/d/1zqcoTJOpBWN0Q) on dataset (dataset shortened and formed) for training and testing network. Full dataset you can find on [Kaggle](https://www.kaggle.com/code/javidtheimmortal/sar-image-despeckling-using-a-convolutional-neural/data).
+There is [link](https://disk.yandex.ru/d/SH8-sVZkq6z23w) on dataset (dataset shortened and formed) for training and testing network. Full dataset you can find on [Kaggle](https://www.kaggle.com/code/javidtheimmortal/sar-image-despeckling-using-a-convolutional-neural/data).
 
 # Train and Test
 Start the training of neural network with command:
