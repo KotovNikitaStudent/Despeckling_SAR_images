@@ -1,6 +1,7 @@
 # Despeckling SAR images
 Repository contains an algorithm that removes speckle noise from SAR images.
 The algorithm based on using convolutional neural network. Using PyTorch framework.
+This repository contains the implementation of the network from [Kaggle](https://www.kaggle.com/code/javidtheimmortal/sar-image-despeckling-using-a-convolutional-neural/notebook) on the framework PyTorch. 
 
 # Description of CNN
 Despeckle filter consist from convolution layers (CNN).
@@ -81,6 +82,7 @@ dataset/
     ├── clean
     └── noise
 ```
+There is [link](https://disk.yandex.ru/d/1zqcoTJOpBWN0Q) on dataset (dataset shortened and formed) for training and testing network. Full dataset you can find on [Kaggle](https://www.kaggle.com/code/javidtheimmortal/sar-image-despeckling-using-a-convolutional-neural/data).
 
 # Train and Test
 Start the training of neural network with command:
