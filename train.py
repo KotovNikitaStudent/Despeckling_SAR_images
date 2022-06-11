@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from Despeckling_SAR_images.utils import create_dir
+from utils import create_dir
 from loss import TotalVariationLoss
 from model import DespeckleFilter
 from dataset import DespeckleDataset
@@ -8,7 +8,7 @@ import torch
 from tqdm import tqdm
 
 
-DATA_ROOT = "/Users/nikita/Downloads/despeckle_dataset/s2" # dataset contains 1-channel images
+DATA_ROOT = "/Users/nikita/Downloads/despeckle_dataset/" # dataset contains 1-channel images
 
 args = {
     "image_path": DATA_ROOT,

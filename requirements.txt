@@ -3,3 +3,4 @@ tqdm
 torch
 torchvision
 torchsummary
+scikit-learn
