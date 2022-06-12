@@ -3,12 +3,11 @@ from utils import create_dir
 from loss import TotalVariationLoss
 from model import DespeckleFilter
 from dataset import DespeckleDataset
-from torch import optim
 import torch
 from tqdm import tqdm
 
 
-DATA_ROOT = "/Users/nikita/Downloads/despeckle_dataset/" # dataset contains 1-channel images
+DATA_ROOT = "/raid/n.kotov1/sar_data/despeckle_dataset" # dataset contains 1-channel images
 
 args = {
     "image_path": DATA_ROOT,
@@ -35,7 +34,7 @@ def main():
     dataloader_val = DataLoader(dataset_val, batch_size=args["batch_size"], num_workers=4, shuffle=True)
 
     loss_fn = TotalVariationLoss()
-    optimizer = optim.NAdam(model.parameters(), lr=args['lr'])
+    optimizer = torch.optim.Adam(model.parameters(), lr=args['lr'])
         
     best_valid_loss = float("inf")
 
@@ -53,6 +52,7 @@ def main():
 
         data_str = f'Epoch: {epoch+1:02}\n'
         data_str += f'\tTrain Loss: {train_loss:.5f}\n'
+        data_str += f'\tValid Loss: {valid_loss:.5f}\n'
         
         print(data_str)
         
