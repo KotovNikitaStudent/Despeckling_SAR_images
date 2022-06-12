@@ -95,4 +95,4 @@ python3 test.py
 ```
 
 # Results
-Future works.
+Trained weights [here](https://disk.yandex.ru/d/stzmEKtA2fLvow).
