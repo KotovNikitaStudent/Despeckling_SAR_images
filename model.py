@@ -1,27 +1,8 @@
 import torch.nn as nn
 from torch import divide, tanh
-
-
-class conv(nn.Module):
-    def __init__(self, in_c, out_c):
-        super().__init__()
-
-        self.conv = nn.Conv2d(in_c, out_c, kernel_size=3, padding=1)
-
-    def forward(self, inputs):
-        x = self.conv(inputs)
-        return x
-    
-
-class conv_dr(nn.Module):
-    def __init__(self, in_c, out_c, dilation_rate=1, padding=1):
-        super().__init__()
-
-        self.conv = nn.Conv2d(in_c, out_c, kernel_size=3, padding=padding, dilation=dilation_rate)
-
-    def forward(self, inputs):
-        x = self.conv(inputs)
-        return x
+import collections
+from itertools import repeat
+import torch.nn.functional as F
 
 
 class Lambda(nn.Module):
@@ -32,23 +13,71 @@ class Lambda(nn.Module):
         return x + 1e-7
 
 
+def _ntuple(n):
+    def parse(x):
+        if isinstance(x, collections.abc.Iterable):
+            return tuple(x)
+        return tuple(repeat(x, n))
+
+    return parse
+
+_pair = _ntuple(2)
+
+
+class Conv2dSame(nn.Module):
+    def __init__(
+            self,
+            in_channels, 
+            out_channels, 
+            kernel_size=3,
+            stride=1,
+            dilation=1,
+            **kwargs):
+
+        super().__init__()
+        self.conv = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            dilation=dilation,
+            **kwargs)
+
+        kernel_size_ = _pair(kernel_size)
+        dilation_ = _pair(dilation)
+        self._reversed_padding_repeated_twice = [0, 0]*len(kernel_size_)
+
+        for d, k, i in zip(dilation_, kernel_size_, 
+                                range(len(kernel_size_) - 1, -1, -1)):
+            total_padding = d * (k - 1)
+            left_pad = total_padding // 2
+            self._reversed_padding_repeated_twice[2 * i] = left_pad
+            self._reversed_padding_repeated_twice[2 * i + 1] = (
+                    total_padding - left_pad)
+
+    def forward(self, imgs):
+        padded = F.pad(imgs, self._reversed_padding_repeated_twice)
+        return self.conv(padded)
+
+
+
 class DespeckleFilter(nn.Module):
     def __init__(self, in_c) -> None:
         super(DespeckleFilter, self).__init__()
         
-        self.conv_1 = conv(in_c=in_c, out_c=64)
-        self.conv_2 = conv(in_c=64, out_c=in_c)
+        self.conv_1 = Conv2dSame(in_channels=in_c, out_channels=64)
+        self.conv_2 = Conv2dSame(in_channels=64, out_channels=in_c)
         self.leaky_rely = nn.LeakyReLU(negative_slope=0.2)
         self.b_n = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
-        self.conv_dr_1 = conv_dr(64, 64, 1, 1)
-        self.conv_dr_2 = conv_dr(64, 64, 2, 2)
-        self.conv_dr_3 = conv_dr(64, 64, 3, 3)
-        self.conv_dr_4 = conv_dr(64, 64, 4, 4)
+        self.conv_dr_1 = Conv2dSame(in_channels=64, out_channels=64, dilation=1)
+        self.conv_dr_2 = Conv2dSame(in_channels=64, out_channels=64, dilation=2)
+        self.conv_dr_3 = Conv2dSame(in_channels=64, out_channels=64, dilation=3)
+        self.conv_dr_4 = Conv2dSame(in_channels=64, out_channels=64, dilation=4)
         self.lambda_layer = Lambda()
         
     def forward(self, inputs):
-        input_layer = inputs
+        input_layer = inputs        
         x = self.conv_1(inputs)
         x = self.leaky_rely(x)
         
