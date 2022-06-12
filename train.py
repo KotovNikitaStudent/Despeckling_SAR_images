@@ -4,7 +4,6 @@ from loss import TotalVariationLoss
 from model import DespeckleFilter
 from dataset import DespeckleDataset
 import torch
-from tqdm import tqdm
 
 
 DATA_ROOT = "/raid/n.kotov1/sar_data/despeckle_dataset" # dataset contains 1-channel images
@@ -15,7 +14,7 @@ args = {
     "batch_size": 16,
     "device": 0,
     "lr": 1e-4,
-    "epochs": 500,   
+    "epochs": 100,   
 }
 
 
@@ -64,7 +63,7 @@ def train(model, loader, optimizer, loss_fn, device):
 
     model.train()
     
-    for x, y in tqdm(loader, total=len(loader)):
+    for x, y in loader:
         x = x.to(device, dtype=torch.float32)
         y = y.to(device, dtype=torch.float32)
 
