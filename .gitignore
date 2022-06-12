@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 weight/
+results/
 build/
 develop-eggs/
 dist/

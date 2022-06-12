@@ -3,54 +3,51 @@ import numpy as np
 from glob import glob
 from tqdm import tqdm
 import torch
-from Despeckling_SAR_images.utils import create_dir
+from utils import create_dir
 from model import DespeckleFilter
 from skimage import io
 
 
-DATA_ROOT = "/Users/nikita/Downloads/despeckle_test" # TODO: here a full path to test the noising image
+DATA_ROOT = "/Users/nikita/Downloads"
 
 args = {
-    "image_path": DATA_ROOT,
     "channels": 1,
     "device": 0,
 }
 
-
 def main():
     create_dir("results")
-    checkpoint_path = "files/checkpoint.pth"
+    checkpoint_path = "weight/despeckle_best.pth"
 
-    test_images = glob(os.path.join(DATA_ROOT, '*'), recursive=True)
-    
-    device = torch.cuda.set_device(args["device"])
-    device = torch.device(f"cuda:{args['device']}")
+    test_image = os.path.join(DATA_ROOT, 'sentinel-radar_germany_test_45_1024_1408.tif')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     model = DespeckleFilter(args['channels'])
     model = model.to(device)
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     model.eval()
 
-    for i, x in tqdm(enumerate(test_images), total=len(test_images)):
-        name = x.split("/")[-1].split(".")[0]
-        
-        image = io.imread(x)
-        x = np.transpose(image, (2, 0, 1))      ## (3, 512, 512)
-        x = x/255.0
-        x = np.expand_dims(x, axis=0)           ## (1, 3, 512, 512)
-        x = x.astype(np.float32)
-        x = torch.from_numpy(x)
-        x = x.to(device)
+    name = test_image.split("/")[-1].split(".")[0]
+    image = io.imread(test_image)
+    origin_image = image.copy()
+    image = np.expand_dims(image, axis=0)
+    image = np.expand_dims(image, axis=0)
+    image = image / (2 ** 8 - 1)
+    image = image.astype(np.float32)
+    image = torch.from_numpy(image)
+    image = image.to(device)
+    
+    with torch.no_grad():
+        pred_y = model(image)
+        pred_y = pred_y[0].cpu().numpy()
+        pred_y = np.squeeze(pred_y, axis=0)
+        pred_y = np.array(pred_y * (2 ** 8 - 1), dtype=np.uint8)
 
-        with torch.no_grad():
-            pred_y = model(x)
-            pred_y = pred_y[0].cpu().numpy()        ## (1, 512, 512)
-            pred_y = np.squeeze(pred_y, axis=0)     ## (512, 512)
-            pred_y = pred_y > 0.5
-            pred_y = np.array(pred_y, dtype=np.uint8)
-
-        io.imsave(f"results/{name}.tif", pred_y * 255)
+    size = origin_image.shape
+    line = np.zeros((size[1], 10))
+    cat_images = np.concatenate([origin_image, line, pred_y], axis=1)
+    io.imsave(f"results/{name}.png", cat_images)
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
