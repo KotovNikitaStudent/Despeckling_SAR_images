@@ -60,6 +60,69 @@ class Conv2dSame(nn.Module):
         return self.conv(padded)
 
 
+# class DespeckleFilter(nn.Module):
+#     def __init__(self, in_c) -> None:
+#         super(DespeckleFilter, self).__init__()
+        
+#         self.conv_0 = Conv2dSame(in_channels=in_c, out_channels=1)
+#         self.conv_1 = Conv2dSame(in_channels=in_c, out_channels=64)
+#         self.conv_2 = Conv2dSame(in_channels=64, out_channels=in_c)
+#         self.leaky_rely = nn.LeakyReLU(negative_slope=0.2)
+#         self.b_n = nn.BatchNorm2d(64)
+#         self.relu = nn.ReLU()
+#         self.conv_dr_1 = Conv2dSame(in_channels=64, out_channels=64, dilation=1)
+#         self.conv_dr_2 = Conv2dSame(in_channels=64, out_channels=64, dilation=2)
+#         self.conv_dr_3 = Conv2dSame(in_channels=64, out_channels=64, dilation=3)
+#         self.conv_dr_4 = Conv2dSame(in_channels=64, out_channels=64, dilation=4)
+#         self.lambda_layer = Lambda()
+        
+#     def forward(self, inputs):
+#         input_layer = inputs  
+#         x = self.conv_0(inputs)      
+#         x = self.conv_1(x)
+#         x = self.leaky_rely(x)
+        
+#         x = self.conv_dr_1(x)
+#         x = self.b_n(x)
+#         x = self.leaky_rely(x)
+        
+#         x = self.conv_dr_2(x)
+#         x = self.b_n(x)
+#         x = self.leaky_rely(x)
+        
+#         x = self.conv_dr_3(x)
+#         x = self.b_n(x)
+#         x = self.leaky_rely(x)
+        
+#         x = self.conv_dr_4(x)
+#         x = self.b_n(x)
+#         x = self.leaky_rely(x)
+        
+#         x = self.conv_dr_4(x)
+#         x = self.b_n(x)
+#         x = self.relu(x)
+        
+#         x = self.conv_dr_3(x)
+#         x = self.b_n(x)
+#         x = self.relu(x)
+        
+#         x = self.conv_dr_2(x)
+#         x = self.b_n(x)
+#         x = self.relu(x)
+        
+#         x = self.conv_dr_1(x)
+#         x = self.b_n(x)
+#         x = self.relu(x)       
+        
+#         x = self.conv_2(x)
+#         x = self.relu(x)
+        
+#         x = self.lambda_layer(x)
+#         x = divide(input_layer, x)
+#         x = tanh(x)
+        
+#         return x
+
 
 class DespeckleFilter(nn.Module):
     def __init__(self, in_c) -> None:
@@ -67,59 +130,45 @@ class DespeckleFilter(nn.Module):
         
         self.conv_1 = Conv2dSame(in_channels=in_c, out_channels=64)
         self.conv_2 = Conv2dSame(in_channels=64, out_channels=in_c)
-        self.leaky_rely = nn.LeakyReLU(negative_slope=0.2)
+        self.conv_3 = Conv2dSame(in_channels=64, out_channels=64)
         self.b_n = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
-        self.conv_dr_1 = Conv2dSame(in_channels=64, out_channels=64, dilation=1)
-        self.conv_dr_2 = Conv2dSame(in_channels=64, out_channels=64, dilation=2)
-        self.conv_dr_3 = Conv2dSame(in_channels=64, out_channels=64, dilation=3)
-        self.conv_dr_4 = Conv2dSame(in_channels=64, out_channels=64, dilation=4)
-        self.lambda_layer = Lambda()
+        self.tanh = nn.Tanh()
         
     def forward(self, inputs):
-        input_layer = inputs        
+        input_layer = inputs
         x = self.conv_1(inputs)
-        x = self.leaky_rely(x)
-        
-        x = self.conv_dr_1(x)
-        x = self.b_n(x)
-        x = self.leaky_rely(x)
-        
-        x = self.conv_dr_2(x)
-        x = self.b_n(x)
-        x = self.leaky_rely(x)
-        
-        x = self.conv_dr_3(x)
-        x = self.b_n(x)
-        x = self.leaky_rely(x)
-        
-        x = self.conv_dr_4(x)
-        x = self.b_n(x)
-        x = self.leaky_rely(x)
-        
-        x = self.conv_dr_4(x)
+        x = self.relu(x)
+
+        x = self.conv_3(x)
         x = self.b_n(x)
         x = self.relu(x)
-        
-        x = self.conv_dr_3(x)
+
+        x = self.conv_3(x)
         x = self.b_n(x)
         x = self.relu(x)
-        
-        x = self.conv_dr_2(x)
+
+        x = self.conv_3(x)
         x = self.b_n(x)
         x = self.relu(x)
-        
-        x = self.conv_dr_1(x)
+
+        x = self.conv_3(x)
         x = self.b_n(x)
-        x = self.relu(x)       
-        
+        x = self.relu(x)
+
+        x = self.conv_3(x)
+        x = self.b_n(x)
+        x = self.relu(x)
+
+        x = self.conv_3(x)
+        x = self.b_n(x)
+        x = self.relu(x)
+
         x = self.conv_2(x)
         x = self.relu(x)
-        
-        x = self.lambda_layer(x)
+
         x = divide(input_layer, x)
-        x = tanh(x)
-        
+        x = self.tanh(x)
         return x
     
 

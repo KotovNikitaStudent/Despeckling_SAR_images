@@ -4,7 +4,7 @@ from loss import TotalVariationLoss
 from model import DespeckleFilter
 from dataset import DespeckleDataset
 import torch
-
+from logger import logger
 
 DATA_ROOT = "/raid/n.kotov1/sar_data/despeckle_dataset" # dataset contains 1-channel images
 
@@ -12,9 +12,9 @@ args = {
     "image_path": DATA_ROOT,
     "channels": 1,
     "batch_size": 16,
-    "device": 0,
-    "lr": 1e-4,
-    "epochs": 100,   
+    "device": 3,
+    "lr": 0.0002,
+    "epochs": 500,   
 }
 
 
@@ -32,7 +32,7 @@ def main():
     dataloader_train = DataLoader(dataset_train, batch_size=args["batch_size"], num_workers=4, shuffle=True)
     dataloader_val = DataLoader(dataset_val, batch_size=args["batch_size"], num_workers=4, shuffle=True)
 
-    loss_fn = TotalVariationLoss()
+    loss_fn = TotalLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args['lr'])
         
     best_valid_loss = float("inf")
@@ -44,7 +44,8 @@ def main():
 
         if valid_loss < best_valid_loss:
             data_str = f"Valid loss improved from {best_valid_loss:2.5f} to {valid_loss:2.5f}. Saving checkpoint."
-            print(data_str)
+            # print(data_str)
+            logger.info(data_str)
 
             best_valid_loss = valid_loss
             torch.save(model.state_dict(), "weight/despeckle_best.pth")
@@ -53,9 +54,11 @@ def main():
         data_str += f'\tTrain Loss: {train_loss:.5f}\n'
         data_str += f'\tValid Loss: {valid_loss:.5f}\n'
         
-        print(data_str)
+        logger.info(data_str)
+        # print(data_str)
         
     print('Training finished')
+    logger.info('Training finished')
     
 
 def train(model, loader, optimizer, loss_fn, device):
@@ -69,7 +72,7 @@ def train(model, loader, optimizer, loss_fn, device):
 
         optimizer.zero_grad()
         y_pred = model(x)
-        total_loss, _, _ = loss_fn(y_pred, y)
+        total_loss = loss_fn(y_pred, y)
         total_loss.backward()
         optimizer.step()
         epoch_loss += total_loss.item()
@@ -89,7 +92,7 @@ def evaluate(model, loader, loss_fn, device):
             y = y.to(device, dtype=torch.float32)
 
             y_pred = model(x)
-            total_loss, _, _ = loss_fn(y_pred, y)
+            total_loss = loss_fn(y_pred, y)
             epoch_loss += total_loss.item()
 
         epoch_loss = epoch_loss/len(loader)
