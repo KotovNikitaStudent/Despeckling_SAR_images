@@ -1,11 +1,14 @@
 # Despeckling SAR images
+
 Repository contains an algorithm that removes speckle noise from SAR images.
 The algorithm based on using convolutional neural network. Using PyTorch framework.
-This repository contains the implementation of the network from [Kaggle](https://www.kaggle.com/code/javidtheimmortal/sar-image-despeckling-using-a-convolutional-neural/notebook) on the framework PyTorch. 
+This repository contains the implementation of the network from [Kaggle](https://www.kaggle.com/code/javidtheimmortal/sar-image-despeckling-using-a-convolutional-neural/notebook) on the framework PyTorch.
 
 # Description of CNN
+
 Despeckle filter consist from convolution layers (CNN).
 Example, Summary for image (256, 256, 3):
+
 ```
 ----------------------------------------------------------------
         Layer (type)               Output Shape         Param #
@@ -60,16 +63,21 @@ Params size (MB): 1.14
 Estimated Total Size (MB): 1123.39
 ----------------------------------------------------------------
 ```
+
 You can check architecture of neural network using the following lines of code:
+
 ```
 from torchsummary import summary
 model = DespeckleFilter(1)
 summary(model, input_size=(1, 256, 256))
 ```
+
 where 1 is number channels of image. Current repository using 1-channel images for training and testing neural network.
 
 # Dataset
+
 Dataset should contain image without noise (clean images) and with noise (noise images). The data set must have the following file structure:
+
 ```
 dataset/
 ├── test
@@ -82,17 +90,27 @@ dataset/
     ├── clean
     └── noise
 ```
+
 There is [link](https://disk.yandex.ru/d/SH8-sVZkq6z23w) on dataset (dataset shortened and formed) for training and testing network. Full dataset you can find on [Kaggle](https://www.kaggle.com/code/javidtheimmortal/sar-image-despeckling-using-a-convolutional-neural/data).
 
 # Train and Test
+
 Start the training of neural network with command:
+
 ```
 python3 train.py
 ```
+
 Testing of neural network with command:
+
 ```
 python3 test.py
 ```
 
 # Results
-Trained weights [here](https://disk.yandex.ru/d/stzmEKtA2fLvow).
+
+Will be later
+
+# Examples
+
+Will be later
