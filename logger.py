@@ -1,10 +1,9 @@
-"""Конфигурация логера"""
+"""Logger configuration"""
 import sys
 import logging
 from logging.handlers import RotatingFileHandler
 
 
-# Создание и конфигурация корневого логера
 logger = logging.getLogger("Despeckling SAR images")
 logger.setLevel(logging.INFO)
 

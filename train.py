@@ -1,10 +1,10 @@
 from torch.utils.data import DataLoader
 from utils import create_dir
-from loss import TotalVariationLoss
 from model import DespeckleFilter
 from dataset import DespeckleDataset
 import torch
 from logger import logger
+
 
 DATA_ROOT = "/raid/n.kotov1/sar_data/despeckle_dataset" # dataset contains 1-channel images
 
@@ -44,7 +44,6 @@ def main():
 
         if valid_loss < best_valid_loss:
             data_str = f"Valid loss improved from {best_valid_loss:2.5f} to {valid_loss:2.5f}. Saving checkpoint."
-            # print(data_str)
             logger.info(data_str)
 
             best_valid_loss = valid_loss
@@ -55,9 +54,7 @@ def main():
         data_str += f'\tValid Loss: {valid_loss:.5f}\n'
         
         logger.info(data_str)
-        # print(data_str)
         
-    print('Training finished')
     logger.info('Training finished')
     
 
