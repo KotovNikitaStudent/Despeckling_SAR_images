@@ -19,28 +19,39 @@ def seeding(seed):
 def create_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
-        
 
-def train_test_val_split(images_clean, images_noise, split=(0.1, 0.1), shuffle=True, aim_path='/'):
-    images_clean_list = sorted(glob(os.path.join(images_clean, '*.tif'), recursive=True))
-    images_noise_list = sorted(glob(os.path.join(images_noise, '*.tif'), recursive=True))
-        
-    clean_train, clean_test_val, noise_train, noise_test_val = train_test_split(images_clean_list, images_noise_list, 
-        test_size=(split[0]+split[1]), shuffle=shuffle)
 
-    clean_test, clean_val, noise_test, noise_val = train_test_split(clean_test_val, noise_test_val, 
-        test_size=split[0], shuffle=False)
+def train_test_val_split(
+    images_clean, images_noise, split=(0.1, 0.1), shuffle=True, aim_path="/"
+):
+    images_clean_list = sorted(
+        glob(os.path.join(images_clean, "*.tif"), recursive=True)
+    )
+    images_noise_list = sorted(
+        glob(os.path.join(images_noise, "*.tif"), recursive=True)
+    )
+
+    clean_train, clean_test_val, noise_train, noise_test_val = train_test_split(
+        images_clean_list,
+        images_noise_list,
+        test_size=(split[0] + split[1]),
+        shuffle=shuffle,
+    )
+
+    clean_test, clean_val, noise_test, noise_val = train_test_split(
+        clean_test_val, noise_test_val, test_size=split[0], shuffle=False
+    )
 
     aim_train_clean = os.path.join(aim_path, "train", "clean")
     aim_train_noise = os.path.join(aim_path, "train", "noise")
-    
+
     aim_test_clean = os.path.join(aim_path, "test", "clean")
     aim_test_noise = os.path.join(aim_path, "test", "noise")
 
     aim_val_clean = os.path.join(aim_path, "val", "clean")
     aim_val_noise = os.path.join(aim_path, "val", "noise")
-    
-    print("*"*50)
+
+    print("*" * 50)
     print("INFO: train/test/val split dataset")
     print("train clean: ", len(clean_train))
     print("train noise: ", len(noise_train))
@@ -48,12 +59,12 @@ def train_test_val_split(images_clean, images_noise, split=(0.1, 0.1), shuffle=T
     print("test noise: ", len(noise_test))
     print("val clean: ", len(clean_val))
     print("val noise: ", len(noise_val))
-    print("*"*50)
-    
+    print("*" * 50)
+
     for im_cl, im_ns in zip(sorted(clean_train), sorted(noise_train)):
         shutil.move(im_cl, aim_train_clean)
         shutil.move(im_ns, aim_train_noise)
-    
+
     for im_cl, im_ns in zip(sorted(clean_test), sorted(noise_test)):
         shutil.move(im_cl, aim_test_clean)
         shutil.move(im_ns, aim_test_noise)

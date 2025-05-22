@@ -2,8 +2,6 @@ import os
 import numpy as np
 import torch
 from skimage import io
-from skimage.metrics import peak_signal_noise_ratio as psnr
-from skimage.metrics import structural_similarity as ssim
 from torchvision import transforms
 import argparse
 from glob import glob
@@ -42,10 +40,6 @@ def main(args):
 
     image_paths = sorted(glob(os.path.join(args.noisy_dir, "*.*")))
 
-    total_psnr = 0.0
-    total_ssim = 0.0
-    count = 0
-
     print(f"Начинаем обработку {len(image_paths)} изображений...")
 
     for img_path in image_paths:
@@ -71,37 +65,7 @@ def main(args):
         result_path = os.path.join(args.output_dir, f"{name}_denoised.png")
         io.imsave(result_path, denoised_image)
 
-        if args.clean_dir:
-            clean_path = os.path.join(args.clean_dir, os.path.basename(img_path))
-            if os.path.exists(clean_path):
-                clean_image = io.imread(clean_path)
-                if len(clean_image.shape) > 2:
-                    clean_image = clean_image[:, :, 0]
-                clean_image = np.array(clean_image, dtype=np.float32)
-                denoised_resized = np.array(denoised_image, dtype=np.float32)
-
-                if clean_image.shape != denoised_resized.shape:
-                    print(f"Размеры не совпадают для {name}. Пропуск метрик.")
-                    continue
-
-                psnr_val = psnr(clean_image, denoised_resized)
-                ssim_val = ssim(
-                    clean_image, denoised_resized, data_range=255, channel_axis=None
-                )
-
-                total_psnr += psnr_val
-                total_ssim += ssim_val
-                count += 1
-
-                print(f"{name} | PSNR: {psnr_val:.2f} dB | SSIM: {ssim_val:.4f}")
-
-        else:
-            print(f"{name} обработано")
-
-    if count > 0:
-        avg_psnr = total_psnr / count
-        avg_ssim = total_ssim / count
-        print(f"\nСреднее PSNR: {avg_psnr:.2f} dB | Средний SSIM: {avg_ssim:.4f}")
+        print(f"{name} обработано")
 
 
 if __name__ == "__main__":
@@ -112,12 +76,6 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Путь к папке с зашумлёнными изображениями",
-    )
-    parser.add_argument(
-        "--clean_dir",
-        type=str,
-        default="",
-        help="Путь к папке с чистыми изображениями (если есть)",
     )
     parser.add_argument(
         "--checkpoint", type=str, required=True, help="Путь к весам модели (.pth)"

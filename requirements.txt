@@ -4,3 +4,6 @@ torch
 torchvision
 torchsummary
 scikit-learn
+# fortatters/linters
+ruff
+black
