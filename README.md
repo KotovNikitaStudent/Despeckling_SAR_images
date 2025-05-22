@@ -51,7 +51,7 @@ Testing results for different architectures:
 
 | Model                        | RSNR (dB) | SSIM |
 |------------------------------|-----------|------|
-| DespeckleNet                 | 18.25     | 0.48 |
+| DespeckleNet                 | 18.18     | 0.51 |
 | DespeckleNet++               | 17.03     | 0.42 |
 | CBAMDilated                  | 17.63     | 0.40 |
 | MultiScaleReconstructionNet  | 17.25     | 0.43 |

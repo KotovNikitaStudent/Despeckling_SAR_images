@@ -4,6 +4,7 @@ torch
 torchvision
 torchsummary
 scikit-learn
+torchmetrics
 # fortatters/linters
 ruff
 black

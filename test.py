@@ -7,12 +7,14 @@ from skimage.metrics import structural_similarity as ssim
 from torchvision import transforms
 import argparse
 from glob import glob
+from logger import logger
 
-from models import DespeckleNet
-from models import DespeckleNetPlusPlus
-from models import CBAMDilatedNet
-from models import MultiScaleReconstructionNet
-
+from models import (
+    DespeckleNet,
+    DespeckleNetPlusPlus,
+    CBAMDilatedNet,
+    MultiScaleReconstructionNet,
+)
 
 MODEL_MAP = {
     "DespeckleNet": DespeckleNet,
@@ -34,11 +36,11 @@ def main(args):
     model.to(device)
     model.eval()
 
-    transform = transforms.Compose(
-        [
-            transforms.ToTensor(),
-        ]
-    )
+    logger.info("Аргументы командной строки:")
+    for k, v in vars(args).items():
+        logger.info(f"\t{k}: {v}")
+
+    transform = transforms.Compose([transforms.ToTensor()])
 
     image_paths = sorted(glob(os.path.join(args.noisy_dir, "*.*")))
 
@@ -60,11 +62,13 @@ def main(args):
         if len(noisy_image.shape) > 2:
             noisy_image = noisy_image[:, :, 0]
 
+        # Преобразование входного изображения
         input_tensor = transform(noisy_image).unsqueeze(0).to(device)
 
         with torch.no_grad():
             output_tensor = model(input_tensor).cpu().squeeze().numpy()
 
+        # Обрезка и преобразование к uint8
         output_tensor = np.clip(output_tensor, 0, 1)
         denoised_image = (output_tensor * 255).astype(np.uint8)
 
@@ -84,9 +88,14 @@ def main(args):
                     print(f"Размеры не совпадают для {name}. Пропуск метрик.")
                     continue
 
-                psnr_val = psnr(clean_image, denoised_resized)
+                # <<< ОСНОВНАЯ ПОПРАВКА ТУТ >>>
+                psnr_val = psnr(clean_image, denoised_resized, data_range=255)
                 ssim_val = ssim(
-                    clean_image, denoised_resized, data_range=255, channel_axis=None
+                    clean_image,
+                    denoised_resized,
+                    data_range=255,
+                    channel_axis=None,
+                    win_size=7,  # SSIM лучше работает с окном 7x7
                 )
 
                 total_psnr += psnr_val

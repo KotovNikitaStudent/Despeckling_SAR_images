@@ -6,4 +6,5 @@ python train.py \
   --batch-size 16 \
   --gpu 1 \
   --lr 0.001 \
-  --epochs 20
+  --epochs 50 \
+  --patience 10

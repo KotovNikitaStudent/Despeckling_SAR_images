@@ -5,11 +5,14 @@ from skimage import io
 from torchvision import transforms
 import argparse
 from glob import glob
+from logger import logger
 
-from models import DespeckleNet
-from models import DespeckleNetPlusPlus
-from models import CBAMDilatedNet
-from models import MultiScaleReconstructionNet
+from models import (
+    DespeckleNet,
+    DespeckleNetPlusPlus,
+    CBAMDilatedNet,
+    MultiScaleReconstructionNet,
+)
 
 
 MODEL_MAP = {
@@ -31,6 +34,10 @@ def main(args):
     model.load_state_dict(torch.load(args.checkpoint, map_location=device))
     model.to(device)
     model.eval()
+
+    logger.info("Аргументы командной строки:")
+    for k, v in vars(args).items():
+        logger.info(f"\t{k}: {v}")
 
     transform = transforms.Compose(
         [
